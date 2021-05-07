@@ -2,15 +2,21 @@ import { GraphQLServer } from 'graphql-yoga'
 
 const typeDefs = `
   type Query {
-    hello: String!
+    id: ID!
     name: String!
+    age: Int!
+    employed: Boolean!
+    gpa: Float
   }
 `
 
 const resolvers = {
 	Query: {
-		hello: () => `My first query`,
+		id: () => 'abc3123',
 		name: () => `Tawnee`,
+		age: () => 31,
+		employed: () => true,
+		gpa: () => 4.0,
 	},
 }
 
