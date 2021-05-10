@@ -43,10 +43,38 @@ const demoPosts = [
 	},
 ]
 
+const demoComments = [
+	{
+		id: '1c',
+		text: 'testing comments',
+		author: '1',
+		post: '3p',
+	},
+	{
+		id: '2c',
+		text: 'the truth is out there',
+		author: '1',
+		post: '2p',
+	},
+	{
+		id: '3c',
+		text: 'scuuuuuuulllaaay',
+		author: '2',
+		post: '1p',
+	},
+	{
+		id: '4c',
+		text: 'morleys',
+		author: '3',
+		post: '1p',
+	},
+]
+
 const typeDefs = `
   type Query {
     me: User!
     post: Post!
+    comments: [Comment]!
     users(query: String): [User!]!
     posts(query: String): [Post!]!
   }
@@ -57,6 +85,7 @@ const typeDefs = `
     email: String!
     age: Int
     posts: [Post!]!
+    comments: [Comment!]!
   }
 
   type Post {
@@ -65,6 +94,14 @@ const typeDefs = `
     body: String!
     published: Boolean!
     author: User!
+    comments: [Comment!]!
+  }
+
+  type Comment {
+    id: ID!
+    text: String!
+    author: User!
+    post: Post!
   }
 `
 
@@ -90,6 +127,7 @@ const resolvers = {
 					post.body.toLowerCase().includes(args.query.toLowerCase())
 			)
 		},
+		comments: (parent, args, ctx, info) => demoComments,
 		me: () => ({
 			id: '123098',
 			name: 'Tdawg',
@@ -106,10 +144,20 @@ const resolvers = {
 	Post: {
 		author: (parent, args, ctx, info) =>
 			demoUsers.find((user) => user.id === parent.author),
+		comments: (parent, args, ctx, info) =>
+			demoComments.filter((comment) => comment.post === parent.id),
 	},
 	User: {
 		posts: (parent, args, ctx, info) =>
 			demoPosts.filter((post) => post.author === parent.id),
+		comments: (parent, args, ctx, info) =>
+			demoComments.filter((comment) => comment.author === parent.id),
+	},
+	Comment: {
+		author: (parent, args, ctx, info) =>
+			demoUsers.find((user) => user.id === parent.author),
+		post: (parent, args, ctx, info) =>
+			demoPosts.find((post) => post.id === parent.post),
 	},
 }
 
