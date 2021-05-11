@@ -158,13 +158,10 @@ const resolvers = {
 
 			const user = {
 				id: uuid(),
-				name: args.name,
-				email: args.email,
-				age: args.age,
+				...args,
 			}
 
 			users.push(user)
-
 			return user
 		},
 		createPost: (parent, args, ctx, info) => {
@@ -176,14 +173,10 @@ const resolvers = {
 
 			const post = {
 				id: uuid(),
-				title: args.title,
-				body: args.body,
-				published: args.published,
-				author: args.author,
+				...args,
 			}
 
 			posts.push(post)
-
 			return post
 		},
 		createComment: (parent, args, ctx, info) => {
@@ -198,9 +191,7 @@ const resolvers = {
 
 			const comment = {
 				id: uuid(),
-				text: args.text,
-				post: args.post,
-				author: args.author,
+				...args,
 			}
 
 			comments.push(comment)
