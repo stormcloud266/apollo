@@ -1,7 +1,7 @@
 import { GraphQLServer } from 'graphql-yoga'
 import uuid from 'uuid/v4'
 
-const users = [
+let users = [
 	{
 		id: '1',
 		name: 'tawnee',
@@ -20,7 +20,7 @@ const users = [
 	},
 ]
 
-const posts = [
+let posts = [
 	{
 		id: '1p',
 		title: 'title',
@@ -44,7 +44,7 @@ const posts = [
 	},
 ]
 
-const comments = [
+let comments = [
 	{
 		id: '1c',
 		text: 'testing comments',
@@ -82,8 +82,11 @@ const typeDefs = `
 
   type Mutation {
     createUser(data: CreateUserInput!): User!
+    deleteUser(id: ID!): User!
     createPost(data: CreatePostInput!): Post!
+    deletePost(id: ID!): Post!
     createComment(data: CreateCommentInput!): Comment!
+		deleteComment(id: ID!): Comment!
   }
 
   input CreateUserInput {
@@ -183,6 +186,26 @@ const resolvers = {
 			users.push(user)
 			return user
 		},
+		deleteUser: (parent, args, ctx, info) => {
+			const userIndex = users.findIndex((user) => user.id === args.id)
+
+			if (userIndex === -1) {
+				throw new Error('User not found.')
+			}
+
+			const deletedUsers = users.splice(userIndex, 1)
+			posts = posts.filter((post) => {
+				const match = post.author === args.id
+
+				if (match) {
+					comments = comments.filter((comment) => comment.post !== args.id)
+				}
+				return !match
+			})
+
+			comments = comments.filter((comment) => comment.author !== args.id)
+			return deletedUsers[0]
+		},
 		createPost: (parent, args, ctx, info) => {
 			const userExists = users.some((user) => user.id === args.data.author)
 
@@ -197,6 +220,17 @@ const resolvers = {
 
 			posts.push(post)
 			return post
+		},
+		deletePost: (parent, args, ctx, info) => {
+			const postIndex = posts.findIndex((post) => post.id === args.id)
+
+			if (postIndex === -1) {
+				throw new Error('Post not found.')
+			}
+
+			comments = comments.filter((comment) => comment.post !== args.id)
+			const deletedPosts = posts.splice(postIndex, 1)
+			return deletedPosts[0]
 		},
 		createComment: (parent, args, ctx, info) => {
 			const userExists = users.some((user) => user.id === args.data.author)
@@ -215,6 +249,19 @@ const resolvers = {
 
 			comments.push(comment)
 			return comment
+		},
+		deleteComment: (parent, args, ctx, info) => {
+			const commentIndex = comments.findIndex(
+				(comment) => comment.id === args.id
+			)
+
+			if (commentIndex === -1) {
+				throw new Error('Comment not found.')
+			}
+
+			comments = comments.filter((comment) => comment.post !== args.id)
+			const deletedComments = comments.splice(commentIndex, 1)
+			return deletedComments[0]
 		},
 	},
 	Post: {
