@@ -1,6 +1,7 @@
 import { GraphQLServer } from 'graphql-yoga'
+import uuid from 'uuid/v4'
 
-const demoUsers = [
+const users = [
 	{
 		id: '1',
 		name: 'tawnee',
@@ -19,7 +20,7 @@ const demoUsers = [
 	},
 ]
 
-const demoPosts = [
+const posts = [
 	{
 		id: '1p',
 		title: 'title',
@@ -43,7 +44,7 @@ const demoPosts = [
 	},
 ]
 
-const demoComments = [
+const comments = [
 	{
 		id: '1c',
 		text: 'testing comments',
@@ -79,6 +80,10 @@ const typeDefs = `
     posts(query: String): [Post!]!
   }
 
+  type Mutation {
+    createUser(name: String!, email: String!, age: Int): User!
+  }
+
   type User {
     id: ID!
     name: String!
@@ -109,25 +114,25 @@ const resolvers = {
 	Query: {
 		users: (parent, args, ctx, info) => {
 			if (!args.query) {
-				return demoUsers
+				return users
 			}
 
-			return demoUsers.filter((user) =>
+			return users.filter((user) =>
 				user.name.toLowerCase().includes(args.query.toLowerCase())
 			)
 		},
 		posts: (parent, args, ctx, info) => {
 			if (!args.query) {
-				return demoPosts
+				return posts
 			}
 
-			return demoPosts.filter(
+			return posts.filter(
 				(post) =>
 					post.title.toLowerCase().includes(args.query.toLowerCase()) ||
 					post.body.toLowerCase().includes(args.query.toLowerCase())
 			)
 		},
-		comments: (parent, args, ctx, info) => demoComments,
+		comments: (parent, args, ctx, info) => comments,
 		me: () => ({
 			id: '123098',
 			name: 'Tdawg',
@@ -141,23 +146,43 @@ const resolvers = {
 			published: true,
 		}),
 	},
+	Mutation: {
+		createUser: (parent, args, ctx, info) => {
+			const emailTaken = users.some((user) => user.email === args.email)
+
+			if (emailTaken) {
+				throw new Error('Email already taken.')
+			}
+
+			const user = {
+				id: uuid(),
+				name: args.name,
+				email: args.email,
+				age: args.age,
+			}
+
+			users.push(user)
+
+			return user
+		},
+	},
 	Post: {
 		author: (parent, args, ctx, info) =>
-			demoUsers.find((user) => user.id === parent.author),
+			users.find((user) => user.id === parent.author),
 		comments: (parent, args, ctx, info) =>
-			demoComments.filter((comment) => comment.post === parent.id),
+			comments.filter((comment) => comment.post === parent.id),
 	},
 	User: {
 		posts: (parent, args, ctx, info) =>
-			demoPosts.filter((post) => post.author === parent.id),
+			posts.filter((post) => post.author === parent.id),
 		comments: (parent, args, ctx, info) =>
-			demoComments.filter((comment) => comment.author === parent.id),
+			comments.filter((comment) => comment.author === parent.id),
 	},
 	Comment: {
 		author: (parent, args, ctx, info) =>
-			demoUsers.find((user) => user.id === parent.author),
+			users.find((user) => user.id === parent.author),
 		post: (parent, args, ctx, info) =>
-			demoPosts.find((post) => post.id === parent.post),
+			posts.find((post) => post.id === parent.post),
 	},
 }
 
