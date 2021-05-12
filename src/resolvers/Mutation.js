@@ -36,6 +36,33 @@ export const Mutation = {
 		db.comments = db.comments.filter((comment) => comment.author !== args.id)
 		return deletedUsers[0]
 	},
+	updateUser: (parent, args, { db }, info) => {
+		const user = db.users.find((user) => user.id === args.id)
+
+		if (!user) {
+			throw new Error('User not found.')
+		}
+
+		if (typeof args.data.email === 'string') {
+			const emailTaken = db.users.some((user) => user.email === args.data.email)
+
+			if (emailTaken) {
+				throw new Error('Email taken.')
+			}
+
+			user.email = args.data.email
+		}
+
+		if (typeof args.data.name === 'string') {
+			user.name = args.data.name
+		}
+
+		if (typeof args.data.age !== 'undefined') {
+			user.age = args.data.age
+		}
+
+		return user
+	},
 	createPost: (parent, args, { db }, info) => {
 		const userExists = db.users.some((user) => user.id === args.data.author)
 
@@ -61,6 +88,27 @@ export const Mutation = {
 		db.comments = db.comments.filter((comment) => comment.post !== args.id)
 		const deletedPosts = db.posts.splice(postIndex, 1)
 		return deletedPosts[0]
+	},
+	updatePost: (parent, args, { db }, info) => {
+		const post = db.posts.find((post) => post.id === args.id)
+
+		if (!post) {
+			throw new Error('Unable to find post')
+		}
+
+		if (typeof args.data.body === 'string') {
+			post.body = args.data.body
+		}
+
+		if (typeof args.data.title === 'string') {
+			post.title = args.data.title
+		}
+
+		if (typeof args.data.published === 'boolean') {
+			post.published = args.data.published
+		}
+
+		return post
 	},
 	createComment: (parent, args, { db }, info) => {
 		const userExists = db.users.some((user) => user.id === args.data.author)
@@ -92,5 +140,18 @@ export const Mutation = {
 		db.comments = db.comments.filter((comment) => comment.post !== args.id)
 		const deletedComments = db.comments.splice(commentIndex, 1)
 		return deletedComments[0]
+	},
+	updateComment: (parent, args, { db }, info) => {
+		const comment = db.comments.find((comment) => comment.id === args.id)
+
+		if (!comment) {
+			throw new Error('Unable to find comment')
+		}
+
+		if (typeof args.data.text === 'string') {
+			comment.text = args.data.text
+		}
+
+		return comment
 	},
 }
