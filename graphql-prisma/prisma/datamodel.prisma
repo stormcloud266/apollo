@@ -12,7 +12,16 @@ type Post {
 	title: String!
 	body: String!
 	published: Boolean!
+	author: User!
 	updatedAt: DateTime! @updatedAt
 	createdAt: DateTime! @createdAt
+}
+
+type Comment {
+	id: ID! @unique @id
+	text: String!
 	author: User!
+	post: Post!
+	updatedAt: DateTime! @updatedAt
+	createdAt: DateTime! @createdAt
 }
