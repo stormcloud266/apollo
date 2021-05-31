@@ -4,7 +4,8 @@ type User {
 	email: String! @unique
 	updatedAt: DateTime! @updatedAt
 	createdAt: DateTime! @createdAt
-	posts: [Post!]!
+	posts: [Post!]! @relation(name: "PostToUser", onDelete: CASCADE)
+	comments: [Comment!]! @relation(name: "CommentToUser", onDelete: CASCADE)
 }
 
 type Post {
@@ -12,16 +13,17 @@ type Post {
 	title: String!
 	body: String!
 	published: Boolean!
-	author: User!
+	author: User! @relation(name: "PostToUser", onDelete: SET_NULL)
 	updatedAt: DateTime! @updatedAt
 	createdAt: DateTime! @createdAt
+	comments: [Comment!]! @relation(name: "CommentToPost", onDelete: CASCADE)
 }
 
 type Comment {
 	id: ID! @unique @id
 	text: String!
-	author: User!
-	post: Post!
+	author: User! @relation(name: "CommentToUser", onDelete: SET_NULL)
+	post: Post! @relation(name: "CommentToPost", onDelete: SET_NULL)
 	updatedAt: DateTime! @updatedAt
 	createdAt: DateTime! @createdAt
 }
