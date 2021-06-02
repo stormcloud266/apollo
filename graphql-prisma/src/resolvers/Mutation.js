@@ -49,7 +49,38 @@ export const Mutation = {
 			info
 		)
 	},
-	createComment: async (parent, args, { prisma }, info) => {},
-	deleteComment: async (parent, args, { prisma }, info) => {},
-	updateComment: async (parent, args, { prisma }, info) => {},
+	createComment: async (parent, args, { prisma }, info) => {
+		return prisma.mutation.createComment(
+			{
+				data: {
+					text: args.data.text,
+					author: {
+						connect: {
+							id: args.data.author,
+						},
+					},
+					post: {
+						connect: {
+							id: args.data.post,
+						},
+					},
+				},
+			},
+			info
+		)
+	},
+	deleteComment: async (parent, args, { prisma }, info) => {
+		return prisma.mutation.deleteComment({ where: { id: args.id } }, info)
+	},
+	updateComment: async (parent, args, { prisma }, info) => {
+		return prisma.mutation.updateComment(
+			{
+				where: {
+					id: args.id,
+				},
+				data: args.data,
+			},
+			info
+		)
+	},
 }
