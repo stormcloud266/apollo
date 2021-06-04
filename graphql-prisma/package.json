@@ -6,7 +6,7 @@
 	"scripts": {
 		"start": "nodemon src/index.js --ext js,graphql --exec babel-node",
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"get-schema": "get-graphql-schema http://localhost:4466 > src/generated/prisma.graphql"
+		"get-schema": "get-graphql-schema http://localhost:4466 > src/generated/prisma.graphql -h 'Authorization=Bearer ${token}'"
 	},
 	"author": "Tawnee (stormcloud266)",
 	"license": "ISC",
